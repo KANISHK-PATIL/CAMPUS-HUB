@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 # CAMPUS-HUB
-=======
-# CampusHub
 
 CampusHub is a small Flask-based student productivity and campus-management app for college open-source events. It keeps tasks, deadlines, notes, shared resources, announcements, notifications and basic productivity stats in one place.
 
@@ -123,6 +120,3 @@ Beginner issues focus on docs, accessibility, small UI improvements and tests. I
 ## Merge-conflict guidance
 Avoid broad edits to `style.css`, `models.py`, or large templates. Prefer page-specific JS, route modules and small services. If an issue touches a shared file, keep the PR narrowly scoped and rebase before requesting review.
 
-## License
-MIT.
->>>>>>> origin/master
