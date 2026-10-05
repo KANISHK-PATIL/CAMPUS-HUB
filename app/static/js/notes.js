@@ -1,0 +1,4 @@
+function editNote(id,title,content,subject){const f=document.getElementById('noteForm');f.id.value=id;f.title.value=title;f.content.value=content;f.subject.value=subject;document.getElementById('noteTitle').textContent='Edit note';openModal('note-modal')}
+document.getElementById('noteForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.target,d=Object.fromEntries(new FormData(f)),id=d.id;try{await api(id?'/api/notes/'+id:'/api/notes',{method:id?'PUT':'POST',body:JSON.stringify(d)});location.reload()}catch(err){toast(err.message,'error')}})
+async function deleteNote(id){if(!confirm('Delete this note?'))return;try{await api('/api/notes/'+id,{method:'DELETE'});location.reload()}catch(e){toast(e.message,'error')}}
+document.getElementById('noteSearch').addEventListener('input',async e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('.note-card').forEach(c=>c.style.display=c.innerText.toLowerCase().includes(q)?'':'none')})
