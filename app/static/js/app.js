@@ -1,0 +1,5 @@
+function openModal(id){document.getElementById(id)?.classList.add('show')}
+function closeModal(id){document.getElementById(id)?.classList.remove('show')}
+window.addEventListener('click',e=>{if(e.target.classList.contains('modal'))e.target.classList.remove('show')})
+function toast(message,type='success'){const el=document.createElement('div');el.className='flash '+type;el.textContent=message;document.querySelector('.flash-stack')?.append(el)||document.body.prepend(Object.assign(document.createElement('div'),{className:'flash-stack'}));const box=document.querySelector('.flash-stack');if(!box.contains(el))box.append(el);setTimeout(()=>el.remove(),3000)}
+async function api(url,options={}){const opts={...options,headers:{'Content-Type':'application/json',...(options.headers||{})}};const token=document.querySelector('meta[name="csrf-token"]')?.content;if(token)opts.headers['X-CSRFToken']=token;const r=await fetch(url,opts);const data=await r.json().catch(()=>({success:false,error:'Invalid server response'}));if(!r.ok||data.success===false)throw new Error(data.error||'Request failed');return data.data}

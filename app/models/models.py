@@ -1,0 +1,83 @@
+from datetime import datetime, timezone
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+from app.extensions import db
+
+
+def utcnow():
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(20), nullable=False, default='student')
+    department = db.Column(db.String(100), default='')
+    year = db.Column(db.String(20), default='')
+    avatar = db.Column(db.String(255), default='')
+    joined_at = db.Column(db.DateTime, default=utcnow, nullable=False)
+    tasks = db.relationship('Task', backref='owner', lazy=True, cascade='all, delete-orphan')
+    notes = db.relationship('Note', backref='owner', lazy=True, cascade='all, delete-orphan')
+    notifications = db.relationship('Notification', backref='user', lazy=True, cascade='all, delete-orphan')
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+class Task(db.Model):
+    __tablename__ = 'tasks'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    title = db.Column(db.String(150), nullable=False)
+    description = db.Column(db.Text, default='')
+    priority = db.Column(db.String(20), nullable=False, default='medium')
+    category = db.Column(db.String(30), nullable=False, default='other')
+    due_date = db.Column(db.Date, nullable=True, index=True)
+    completed = db.Column(db.Boolean, default=False, nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=utcnow, onupdate=utcnow, nullable=False)
+
+class Note(db.Model):
+    __tablename__ = 'notes'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    title = db.Column(db.String(150), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    subject = db.Column(db.String(100), default='General')
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=utcnow, onupdate=utcnow, nullable=False)
+
+class Resource(db.Model):
+    __tablename__ = 'resources'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(150), nullable=False)
+    description = db.Column(db.Text, default='')
+    subject = db.Column(db.String(100), default='General')
+    resource_type = db.Column(db.String(30), nullable=False, default='Other')
+    url = db.Column(db.String(500), nullable=False)
+    added_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
+
+class Announcement(db.Model):
+    __tablename__ = 'announcements'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(150), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    category = db.Column(db.String(30), nullable=False, default='General')
+    priority = db.Column(db.String(20), nullable=False, default='Normal')
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=utcnow, onupdate=utcnow, nullable=False)
+
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    title = db.Column(db.String(150), nullable=False)
+    message = db.Column(db.String(500), nullable=False)
+    kind = db.Column(db.String(30), default='info')
+    read = db.Column(db.Boolean, default=False, nullable=False)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
